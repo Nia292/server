@@ -92,6 +92,7 @@ public partial class MareWizardModule : InteractionModuleBase
 
     private async Task InitOrUpdateInteraction(bool init, EmbedBuilder eb, ComponentBuilder cb)
     {
+        _logger.LogInformation("Init: {init}", init);
         if (init)
         {
             await RespondAsync(embed: eb.Build(), components: cb.Build(), ephemeral: true).ConfigureAwait(false);
@@ -147,12 +148,6 @@ public partial class MareWizardModule : InteractionModuleBase
                 return;
             }
         }
-#if !DEBUG
-        bool isInAprilFoolsMode = _mareServicesConfiguration.GetValueOrDefault<ulong?>(nameof(ServicesConfiguration.DiscordRoleAprilFools2024), null) != null
-            && DateTime.UtcNow.Month == 4 && DateTime.UtcNow.Day == 1 && DateTime.UtcNow.Year == 2024 && DateTime.UtcNow.Hour >= 10;
-#elif DEBUG
-        bool isInAprilFoolsMode = true;
-#endif
 
         EmbedBuilder eb = new();
         eb.WithTitle("Welcome to the Mare Synchronos Service Bot for this server");
@@ -160,18 +155,16 @@ public partial class MareWizardModule : InteractionModuleBase
             + (!hasAccount ? string.Empty : ("- Check your account status press \"ℹ️ User Info\"" + Environment.NewLine))
             + (hasAccount ? string.Empty : ("- Register a new Mare Account press \"🌒 Register\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- You lost your secret key press \"🏥 Recover\"" + Environment.NewLine))
-            + (hasAccount ? string.Empty : ("- If you have changed your Discord account press \"🔗 Relink\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- Create a secondary UIDs press \"2️⃣ Secondary UID\"" + Environment.NewLine))
             + (!hasAccount ? string.Empty : ("- Set a Vanity UID press \"💅 Vanity IDs\"" + Environment.NewLine))
-            + (!hasAccount ? string.Empty : (!isInAprilFoolsMode ? string.Empty : ("- Check your WorryCoin™ and MareToken© balance and add payment options" + Environment.NewLine)))
             + (!hasAccount ? string.Empty : ("- Delete your primary or secondary accounts with \"⚠️ Delete\""))
             );
         eb.WithColor(Color.Blue);
         ComponentBuilder cb = new();
         if (!hasAccount)
         {
-            cb.WithButton("Register", "wizard-register", ButtonStyle.Primary, new Emoji("🌒"));
-            cb.WithButton("Relink", "wizard-relink", ButtonStyle.Secondary, new Emoji("🔗"));
+            cb.WithButton("Register", "wizard-register-verify-check:OK", ButtonStyle.Primary, new Emoji("🌒"));
+            // cb.WithButton("Relink", "wizard-relink", ButtonStyle.Secondary, new Emoji("🔗"));
         }
         else
         {
@@ -179,10 +172,6 @@ public partial class MareWizardModule : InteractionModuleBase
             cb.WithButton("Recover", "wizard-recover", ButtonStyle.Secondary, new Emoji("🏥"));
             cb.WithButton("Secondary UID", "wizard-secondary", ButtonStyle.Secondary, new Emoji("2️⃣"));
             cb.WithButton("Vanity IDs", "wizard-vanity", ButtonStyle.Secondary, new Emoji("💅"));
-            if (isInAprilFoolsMode)
-            {
-                cb.WithButton("WorryCoin™ and MareToken© management", "wizard-fools", ButtonStyle.Primary, new Emoji("💲"));
-            }
             cb.WithButton("Delete", "wizard-delete", ButtonStyle.Danger, new Emoji("⚠️"));
         }
 

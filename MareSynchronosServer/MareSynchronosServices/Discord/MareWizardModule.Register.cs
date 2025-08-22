@@ -24,13 +24,12 @@ public partial class MareWizardModule
         eb.WithColor(Color.Blue);
         eb.WithTitle("Start Registration");
         eb.WithDescription("Here you can start the registration process with the Mare Synchronos server of this Discord." + Environment.NewLine + Environment.NewLine
-            + "- Have your Lodestone URL ready (i.e. https://eu.finalfantasyxiv.com/lodestone/character/XXXXXXXXX)" + Environment.NewLine
-            + "  - The registration requires you to modify your Lodestone profile with a generated code for verification" + Environment.NewLine
             + "- Do not use this on mobile because you will need to be able to copy the generated secret key" + Environment.NewLine
             + "# Follow the bot instructions precisely. Slow down and read.");
         ComponentBuilder cb = new();
         AddHome(cb);
-        cb.WithButton("Start Registration", "wizard-register-start", ButtonStyle.Primary, emote: new Emoji("🌒"));
+        // cb.WithButton("Start Registration", "wizard-register-start", ButtonStyle.Primary, emote: new Emoji("🌒"));
+        cb.WithButton("Register", "wizard-register-verify-check:OK", ButtonStyle.Primary, emote: new Emoji("🌒"));
         await ModifyInteraction(eb, cb).ConfigureAwait(false);
     }
 
@@ -102,7 +101,8 @@ public partial class MareWizardModule
 
         EmbedBuilder eb = new();
         ComponentBuilder cb = new();
-        bool stillEnqueued = _botServices.VerificationQueue.Any(k => k.Key == Context.User.Id);
+        bool registerSuccess = false;
+        /*bool stillEnqueued = _botServices.VerificationQueue.Any(k => k.Key == Context.User.Id);
         bool verificationRan = _botServices.DiscordVerifiedUsers.TryGetValue(Context.User.Id, out bool verified);
         bool registerSuccess = false;
         if (!verificationRan)
@@ -165,7 +165,27 @@ public partial class MareWizardModule
                 cb.WithButton("Cancel", "wizard-register", emote: new Emoji("❌"));
                 cb.WithButton("Retry", "wizard-register-verify:" + verificationCode, ButtonStyle.Primary, emote: new Emoji("🔁"));
             }
-        }
+        }*/
+
+        eb.WithColor(Color.Green);
+        using var db = await GetDbContext().ConfigureAwait(false);
+        var (uid, key) = await HandleAddUser(db).ConfigureAwait(false);
+        eb.WithTitle($"Registration successful, your UID: {uid}");
+        eb.WithDescription("This is your private secret key. Do not share this private secret key with anyone. **If you lose it, it is irrevocably lost.**"
+                                     + Environment.NewLine + Environment.NewLine
+                                     + "**__NOTE: Secret keys are considered legacy. Using the suggested OAuth2 authentication in Mare, you do not need to use this Secret Key.__**"
+                                     + Environment.NewLine + Environment.NewLine
+                                     + $"||**`{key}`**||"
+                                     + Environment.NewLine + Environment.NewLine
+                                     + "If you want to continue using legacy authentication, enter this key in Mare Synchronos and hit save to connect to the service."
+                                     + Environment.NewLine
+                                     + "__NOTE: The Secret Key only contains the letters ABCDEF and numbers 0 - 9.__"
+                                     + Environment.NewLine
+                                     + "You should connect as soon as possible to not get caught by the automatic cleanup process."
+                                     + Environment.NewLine
+                                     + "Have fun.");
+        AddHome(cb);
+        registerSuccess = true;
 
         await ModifyInteraction(eb, cb).ConfigureAwait(false);
         if (registerSuccess)
@@ -263,6 +283,17 @@ public partial class MareWizardModule
     private async Task<(string, string)> HandleAddUser(MareDbContext db)
     {
         var lodestoneAuth = db.LodeStoneAuth.SingleOrDefault(u => u.DiscordId == Context.User.Id);
+
+        if (lodestoneAuth == null)
+        {
+            lodestoneAuth = new LodeStoneAuth()
+            {
+                DiscordId = Context.User.Id,
+                HashedLodestoneId = StringUtils.Sha256String(Context.User.Id.ToString()),
+                LodestoneAuthString = string.Empty
+            };
+            await db.LodeStoneAuth.AddAsync(lodestoneAuth).ConfigureAwait(false);
+        }
 
         var user = new User();
 

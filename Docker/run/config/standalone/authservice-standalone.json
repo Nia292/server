@@ -36,6 +36,11 @@
     },
     "AllowedHosts": "*",
     "Kestrel": {
+        "Endpoints": {
+            "Http": {
+                "Url": "http://+:6500"
+            }
+        }
     },
     "IpRateLimiting": {},
     "IPRateLimitPolicies": {}

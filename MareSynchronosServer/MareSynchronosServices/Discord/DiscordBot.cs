@@ -38,7 +38,8 @@ internal class DiscordBot : IHostedService
         _discordClient = new(new DiscordSocketConfig()
         {
             DefaultRetryMode = RetryMode.AlwaysRetry,
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
+            UseInteractionSnowflakeDate = false
         });
 
         _discordClient.Log += Log;

@@ -5,10 +5,12 @@ services:
     restart: always
     ports:
       - 5432:5432/tcp
+    env_file:
+      - .env.local
     environment:
-      POSTGRES_DB: mare
-      POSTGRES_USER: mare
-      POSTGRES_PASSWORD: secretdevpassword
+      POSTGRES_DB: "${MARE_POSTGRES_DB}"
+      POSTGRES_USER: "${MARE_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${MARE_POSTGRES_PASSWORD}"
     volumes:
       - ../data/postgresql/:/var/lib/postgresql/data
       - postgres_socket:/var/run/postgresql:rw
@@ -30,9 +32,11 @@ services:
     ports:
       - 6000:6000/tcp
       - 6050:6050/tcp
+    env_file:
+      - .env.local
     environment:
-      MareSynchronos__CdnFullUrl: "${DEV_MARE_CDNURL}"
-      MareSynchronos__XIVAPIKey: "${DEV_MARE_XIVAPIKEY}"
+      MareSynchronos__CdnFullUrl: "${MARE_CDNURL}"
+      MareSynchronos__XIVAPIKey: "${MARE_XIVAPIKEY}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/server-standalone.json:/opt/MareSynchronosServer/appsettings.json
@@ -46,30 +50,36 @@ services:
       retries: 60
       start_period: 10s
       timeout: 1s
-
-  mare-auth:
-    image: darkarchon/mare-synchronos-authservice:latest
-    restart: on-failure
-    environment:
-      DOTNET_USE_POLLING_FILE_WATCHER: 1
-    volumes:
-      - ../config/standalone/authservice-standalone.json:/opt/MareSynchronosAuthService/appsettings.json
-      - ../log/authservice-standalone/:/opt/MareSynchronosAuthService/logs/:rw
-      - postgres_socket:/var/run/postgresql/:rw
-    depends_on:
-      mare-server:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-
+  # mare-auth:
+  #   image: darkarchon/mare-synchronos-authservice:latest
+  #   restart: on-failure
+  #   environment:
+  #     DOTNET_USE_POLLING_FILE_WATCHER: 1
+  #   ports:
+  #     - 6500:6500/tcp
+  #   volumes:
+  #     - ../config/standalone/authservice-standalone.json:/opt/MareSynchronosAuthService/appsettings.json
+  #     - ../log/authservice-standalone/:/opt/MareSynchronosAuthService/logs/:rw
+  #     - postgres_socket:/var/run/postgresql/:rw
+  #   depends_on:
+  #     mare-server:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
   mare-services:
     image: darkarchon/mare-synchronos-services:latest
     restart: on-failure
+    env_file:
+      - .env.local
     environment:
-      MareSynchronos__DiscordBotToken: "${DEV_MARE_DISCORDTOKEN}"
-      MareSynchronos__DiscordChannelForMessages: "${DEV_MARE_DISCORDCHANNEL}"
-      MareSynchronos__DiscordChannelForReports: "${DEV_MARE_DISCORDCHANNEL}"
-      MareSynchronos__DiscordChannelForCommands: "${DEV_MARE_DISCORDCHANNEL}"
+      MareSynchronos__DiscordBotToken: "${MARE_DISCORD_TOKEN}"
+      MareSynchronos__DiscordChannelForMessages: "${MARE_DISCORD_CHANNEL_MAIN}"
+      MareSynchronos__DiscordChannelForCommands: "${MARE_DISCORD_CHANNEL_COMMANDS}"
+      MareSynchronos__DiscordChannelForReports: "${MARE_DISCORD_CHANNEL_REPORTS}"
+      MareSynchronos__DiscordOAuthClientSecret: "${MARE_DISCORD_OAUTH_CLIENT_SECRET}"
+      MareSynchronos__DiscordOAuthClientId: "${MARE_DISCORD_OAUTH_CLIENT_ID}"
+      MareSynchronos__DiscordRoleRegistered: "${MARE_DISCORD_ROLE_REGISTERED}"
+      MareSynchronos__PublicOAuthBaseUri: "${MARE_PUBLIC_OAUTH_BASE_URI}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/services-standalone.json:/opt/MareSynchronosServices/appsettings.json
@@ -80,14 +90,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
-
   mare-files:
     image: darkarchon/mare-synchronos-staticfilesserver:latest
     ports:
       - 6200:6200/tcp
     restart: on-failure
+    env_file:
+      - .env.local
     environment:
-      MareSynchronos__CdnFullUrl: "${DEV_MARE_CDNURL}"
+      MareSynchronos__CdnFullUrl: "${MARE_CDNURL}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/files-standalone.json:/opt/MareSynchronosStaticFilesServer/appsettings.json
@@ -99,6 +110,16 @@ services:
         condition: service_healthy
       mare-server:
         condition: service_healthy
+  # traefik:
+  #   image: traefik:v2.11
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ../config/standalone/traefik.yml:/etc/traefik/traefik.yml:ro
+  #     - ../config/standalone/dynamic.yml:/etc/traefik/dynamic.yml:ro
 
 volumes:
   postgres_socket:

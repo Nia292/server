@@ -24,18 +24,16 @@ public abstract class AuthControllerBase : Controller
     protected readonly IDbContextFactory<MareDbContext> MareDbContextFactory;
     protected readonly SecretKeyAuthenticatorService SecretKeyAuthenticatorService;
     private readonly IDatabase _redis;
-    private readonly GeoIPService _geoIPProvider;
 
     protected AuthControllerBase(ILogger logger,
     IHttpContextAccessor accessor, IDbContextFactory<MareDbContext> mareDbContextFactory,
     SecretKeyAuthenticatorService secretKeyAuthenticatorService,
     IConfigurationService<AuthServiceConfiguration> configuration,
-    IDatabase redisDb, GeoIPService geoIPProvider)
+    IDatabase redisDb)
     {
         Logger = logger;
         HttpAccessor = accessor;
         _redis = redisDb;
-        _geoIPProvider = geoIPProvider;
         MareDbContextFactory = mareDbContextFactory;
         SecretKeyAuthenticatorService = secretKeyAuthenticatorService;
         Configuration = configuration;
@@ -106,7 +104,6 @@ public abstract class AuthControllerBase : Controller
             new Claim(MareClaimTypes.CharaIdent, charaIdent),
             new Claim(MareClaimTypes.Alias, alias),
             new Claim(MareClaimTypes.Expires, DateTime.UtcNow.AddHours(6).Ticks.ToString(CultureInfo.InvariantCulture)),
-            new Claim(MareClaimTypes.Continent, await _geoIPProvider.GetCountryFromIP(HttpAccessor))
         });
 
         return Content(token.RawData);

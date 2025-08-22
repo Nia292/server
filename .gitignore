@@ -351,3 +351,9 @@ MigrationBackup/
 
 # docker run data
 Docker/run/data/
+
+# Env files
+!.env.example
+!.env.*.example
+.env
+.env.*

@@ -1,0 +1,26 @@
+http:
+  routers:
+    auth:
+      rule: "PathPrefix(`/auth`)"
+      service: auth
+      entryPoints:
+        - web
+        - websecure
+      priority: 10
+    server:
+      rule: "PathPrefix(`/`)"
+      service: server
+      entryPoints:
+        - web
+        - websecure
+      priority: 1
+
+  services:
+    auth:
+      loadBalancer:
+        servers:
+          - url: "http://mare-auth:6500"
+    server:
+      loadBalancer:
+        servers:
+          - url: "http://mare-server:6000"

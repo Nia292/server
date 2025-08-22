@@ -19,9 +19,9 @@ public class JwtController : AuthControllerBase
         IHttpContextAccessor accessor, IDbContextFactory<MareDbContext> mareDbContextFactory,
         SecretKeyAuthenticatorService secretKeyAuthenticatorService,
         IConfigurationService<AuthServiceConfiguration> configuration,
-        IDatabase redisDb, GeoIPService geoIPProvider)
+        IDatabase redisDb)
             : base(logger, accessor, mareDbContextFactory, secretKeyAuthenticatorService,
-                configuration, redisDb, geoIPProvider)
+                configuration, redisDb)
     {
     }
 

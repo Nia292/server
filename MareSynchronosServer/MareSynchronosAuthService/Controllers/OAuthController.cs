@@ -29,9 +29,9 @@ public class OAuthController : AuthControllerBase
     IHttpContextAccessor accessor, IDbContextFactory<MareDbContext> mareDbContext,
     SecretKeyAuthenticatorService secretKeyAuthenticatorService,
     IConfigurationService<AuthServiceConfiguration> configuration,
-    IDatabase redisDb, GeoIPService geoIPProvider)
+    IDatabase redisDb)
         : base(logger, accessor, mareDbContext, secretKeyAuthenticatorService,
-            configuration, redisDb, geoIPProvider)
+            configuration, redisDb)
     {
     }
 
