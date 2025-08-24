@@ -33,19 +33,21 @@
         "MainServerAddress": "",
         "FailedAuthForTempBan": 5,
         "TempBanDurationInMinutes": 5,
-        "Jwt": "teststringteststringteststringteststringteststringteststringteststringteststringteststringteststring",
+        "Jwt": "",
         "WhitelistedIps": [
             ""
         ],
-        "RedisConnectionString": "redis,password=secretredispassword",
+        "RedisConnectionString": "",
         "CdnFullUrl": "http://localhost:6200",
-        "MaxExistingGroupsByUser": 6,
+        "MaxExistingGroupsByUser": 0,
         "MaxJoinedGroupsByUser": 10,
         "MaxGroupUserCount": 100,
-        "PurgeUnusedAccounts": false,
-        "PurgeUnusedAccountsPeriodInDays": 14,
-        "ExpectedClientVersion": "0.9.0",
-        "XIVAPIKey": ""
+        "PurgeUnusedAccounts": true,
+        "PurgeUnusedAccountsPeriodInDays": 30,
+        "ExpectedClientVersion": "1.11.23",
+        "XIVAPIKey": "",
+        "MaxCharaDataByUser": 0,
+        "MaxCharaDataByUserVanity": 10
     },
     "AllowedHosts": "*",
     "Kestrel": {

@@ -107,7 +107,10 @@ public class Startup
                     ValidateLifetime = true,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetValue<string>(nameof(MareConfigurationBase.Jwt)))),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetValue<string>(nameof(MareConfigurationBase.Jwt))))
+                    {
+                        KeyId = config.GetValue<string>(nameof(MareConfigurationBase.JwtKeyId)),
+                    },
                 };
             });
 

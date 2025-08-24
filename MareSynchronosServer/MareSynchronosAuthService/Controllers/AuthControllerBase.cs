@@ -83,7 +83,10 @@ public abstract class AuthControllerBase : Controller
 
     protected JwtSecurityToken CreateJwt(IEnumerable<Claim> authClaims)
     {
-        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>(nameof(MareConfigurationBase.Jwt))));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>(nameof(MareConfigurationBase.Jwt))))
+        {
+            KeyId = Configuration.GetValue<string>(nameof(MareConfigurationBase.JwtKeyId)),
+        };
 
         var token = new SecurityTokenDescriptor()
         {

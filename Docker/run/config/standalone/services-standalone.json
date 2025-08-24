@@ -34,8 +34,8 @@
         "DiscordBotToken": "",
         "DiscordChannelForMessages": "",
         "DiscordChannelForCommands": "",
-        "Jwt": "teststringteststringteststringteststringteststringteststringteststringteststringteststringteststring",
-        "RedisConnectionString": "redis,password=secretredispassword",
+        "Jwt": "",
+        "RedisConnectionString": "",
         "VanityRoles": {"1408474217699344466":"Vanity"}
     },
     "AllowedHosts": "*",

@@ -1,13 +1,14 @@
-﻿using Discord.Interactions;
-using Discord;
-using MareSynchronosShared.Data;
-using Microsoft.EntityFrameworkCore;
-using MareSynchronosShared.Utils;
-using MareSynchronosShared.Models;
-using MareSynchronosShared.Services;
-using MareSynchronosShared.Utils.Configuration;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.Rest;
 using Discord.WebSocket;
+using MareSynchronosShared.Data;
+using MareSynchronosShared.Models;
+using MareSynchronosShared.Services;
+using MareSynchronosShared.Utils;
+using MareSynchronosShared.Utils.Configuration;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace MareSynchronosServices.Discord;
 
@@ -102,6 +103,31 @@ public partial class MareWizardModule
         EmbedBuilder eb = new();
         ComponentBuilder cb = new();
         bool registerSuccess = false;
+
+        bool hasAccess = false;
+        var restUser = await Context.Guild.GetUserAsync(Context.Interaction.User.Id).ConfigureAwait(false);
+        if (restUser != null)
+        {
+            hasAccess = restUser.RoleIds.Contains(1408474114804682812u); // 
+        }
+
+        if (!hasAccess)
+        {
+            eb.WithColor(Color.Red);
+            eb.WithTitle("Not Authorized");
+            eb.WithDescription("You can not register without the <@&1408474114804682812> role. Read <#1408474268458684527> for more information.");
+            AddHome(cb);
+            await ModifyInteraction(eb, cb).ConfigureAwait(false);
+            return;
+        }
+        
+
+        /*var restUser = await _guild.GetUserAsync(user.Id).ConfigureAwait(false);
+        if (restUser == null) return;
+        if (restUser.RoleIds.Contains(registeredRole.Value)) return;
+        await RetryAsync(restUser.AddRoleAsync(registeredRole.Value), user, $"Add Registered Role").ConfigureAwait(false);*/
+
+
         /*bool stillEnqueued = _botServices.VerificationQueue.Any(k => k.Key == Context.User.Id);
         bool verificationRan = _botServices.DiscordVerifiedUsers.TryGetValue(Context.User.Id, out bool verified);
         bool registerSuccess = false;

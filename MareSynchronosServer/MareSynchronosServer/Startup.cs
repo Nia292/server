@@ -24,8 +24,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using MareSynchronosServer.Controllers;
 using MareSynchronosShared.RequirementHandlers;
 using MareSynchronosShared.Utils.Configuration;
-using MareSynchronosAuthService.Services;
-using MareSynchronosAuthService.Controllers;
 
 namespace MareSynchronosServer;
 
@@ -47,17 +45,7 @@ public class Startup
 
         services.AddTransient(_ => Configuration);
 
-        services.AddSingleton<IConfigurationService<AuthServiceConfiguration>, MareConfigurationServiceServer<AuthServiceConfiguration>>();
-
         var mareConfig = Configuration.GetRequiredSection("MareSynchronos");
-
-        // configure redis
-        ConfigureRedis(services, mareConfig);
-
-        // more auth stuff
-        services.AddSingleton<SecretKeyAuthenticatorService>();
-        services.AddSingleton<ServerTokenGenerator>();
-        services.Configure<AuthServiceConfiguration>(mareConfig);
 
         // configure metrics
         ConfigureMetrics(services);
@@ -83,7 +71,7 @@ public class Startup
             a.FeatureProviders.Remove(a.FeatureProviders.OfType<ControllerFeatureProvider>().First());
             if (mareConfig.GetValue<Uri>(nameof(ServerConfiguration.MainServerAddress), defaultValue: null) == null)
             {
-                a.FeatureProviders.Add(new AllowedControllersFeatureProvider(typeof(MareServerConfigurationController), typeof(MareBaseConfigurationController), typeof(ClientMessageController), typeof(JwtController), typeof(OAuthController)));
+                a.FeatureProviders.Add(new AllowedControllersFeatureProvider(typeof(MareServerConfigurationController), typeof(MareBaseConfigurationController), typeof(ClientMessageController)));
             }
             else
             {
@@ -92,6 +80,7 @@ public class Startup
         });
     }
 
+    /*
     private void ConfigureRedis(IServiceCollection services, IConfigurationSection mareConfig)
     {
         // configure redis for SignalR
@@ -104,30 +93,6 @@ public class Startup
 
         if (endpoint is DnsEndPoint dnsEndPoint) { address = dnsEndPoint.Host; port = dnsEndPoint.Port; }
         if (endpoint is IPEndPoint ipEndPoint) { address = ipEndPoint.Address.ToString(); port = ipEndPoint.Port; }
-        /*
-        var redisConfiguration = new RedisConfiguration()
-        {
-            AbortOnConnectFail = true,
-            KeyPrefix = "",
-            Hosts = new RedisHost[]
-            {
-                new RedisHost(){ Host = address, Port = port },
-            },
-            AllowAdmin = true,
-            ConnectTimeout = options.ConnectTimeout,
-            Database = 0,
-            Ssl = false,
-            Password = options.Password,
-            ServerEnumerationStrategy = new ServerEnumerationStrategy()
-            {
-                Mode = ServerEnumerationStrategy.ModeOptions.All,
-                TargetRole = ServerEnumerationStrategy.TargetRoleOptions.Any,
-                UnreachableServerAction = ServerEnumerationStrategy.UnreachableServerActionOptions.Throw,
-            },
-            MaxValueLength = 1024,
-            PoolSize = mareConfig.GetValue(nameof(ServerConfiguration.RedisPool), 50),
-            SyncTimeout = options.SyncTimeout,
-        };*/
 
         var muxer = ConnectionMultiplexer.Connect(options);
         var db = muxer.GetDatabase();
@@ -135,6 +100,7 @@ public class Startup
 
         _logger.LogInformation("Setting up Redis to connect to {host}:{port}", address, port);
     }
+    */
 
     private void ConfigureMareServices(IServiceCollection services, IConfigurationSection mareConfig)
     {
@@ -142,7 +108,7 @@ public class Startup
 
         services.Configure<ServerConfiguration>(mareConfig);
         services.Configure<MareConfigurationBase>(mareConfig);
-        services.Configure<AuthServiceConfiguration>(mareConfig);
+        // services.Configure<AuthServiceConfiguration>(mareConfig);
 
         services.AddSingleton<ServerTokenGenerator>();
         services.AddSingleton<SystemInfoService>();
@@ -250,10 +216,8 @@ public class Startup
 
     private static void ConfigureAuthorization(IServiceCollection services)
     {
-        services.AddTransient<IAuthorizationHandler, RedisDbUserRequirementHandler>();
-        services.AddTransient<IAuthorizationHandler, ValidTokenRequirementHandler>();
-        services.AddTransient<IAuthorizationHandler, ExistingUserRequirementHandler>();
         services.AddTransient<IAuthorizationHandler, UserRequirementHandler>();
+        services.AddTransient<IAuthorizationHandler, ValidTokenRequirementHandler>();
         services.AddTransient<IAuthorizationHandler, ValidTokenHubRequirementHandler>();
 
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
@@ -265,7 +229,18 @@ public class Startup
                     ValidateLifetime = true,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetValue<string>(nameof(MareConfigurationBase.Jwt)))),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.GetValue<string>(nameof(MareConfigurationBase.Jwt))))
+                    {
+                        KeyId = config.GetValue<string>(nameof(MareConfigurationBase.JwtKeyId)),
+                    },
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.Write($"Auth failed: {context.Exception}");
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
@@ -281,13 +256,13 @@ public class Startup
             options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser().Build();
-            options.AddPolicy("OAuthToken", policy =>
+            /*options.AddPolicy("OAuthToken", policy =>
             {
                 policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
                 policy.AddRequirements(new ValidTokenRequirement());
                 policy.AddRequirements(new ExistingUserRequirement());
                 policy.RequireClaim(MareClaimTypes.OAuthLoginToken, "True");
-            });
+            });*/
             options.AddPolicy("Authenticated", policy =>
             {
                 policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);

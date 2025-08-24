@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "mare-server"
+    static_configs:
+      - targets: ["mare-server:6050"]
+    metrics_path: "/metrics"
+  - job_name: "mare-files"
+    static_configs:
+      - targets: ["mare-files:6250"]
+    metrics_path: "/metrics"
+  - job_name: "mare-auth"
+    static_configs:
+      - targets: ["mare-auth:6150"]

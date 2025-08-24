@@ -223,6 +223,9 @@ public class Startup
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(s.GetValue<string>(nameof(MareConfigurationBase.Jwt))))
+                    {
+                        KeyId = mareConfig.GetValue<string>(nameof(MareConfigurationBase.JwtKeyId)),
+                    },
                 };
             });
         services.AddAuthentication(o =>
@@ -250,10 +253,14 @@ public class Startup
 
         var config = app.ApplicationServices.GetRequiredService<IConfigurationService<MareConfigurationBase>>();
 
-        var metricServer = new KestrelMetricServer(config.GetValueOrDefault<int>(nameof(MareConfigurationBase.MetricsPort), 4981));
-        metricServer.Start();
+#pragma warning disable IDISP001 // Dispose created
+#pragma warning disable IDISP004 // Don't ignore created IDisposable
+        var metricServer = new KestrelMetricServer(config.GetValueOrDefault<int>(nameof(MareConfigurationBase.MetricsPort), 4981))
+            .Start();
+#pragma warning restore IDISP004 // Don't ignore created IDisposable
+#pragma warning restore IDISP001 // Dispose created
 
-        app.UseHttpMetrics();
+        app.UseHttpMetrics(); 
 
         app.UseAuthentication();
         app.UseAuthorization();

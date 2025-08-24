@@ -1,3 +1,6 @@
+using MareSynchronosShared.Services;
+using MareSynchronosShared.Utils.Configuration;
+
 namespace MareSynchronosAuthService;
 
 public class Program
@@ -6,14 +9,28 @@ public class Program
     {
         var hostBuilder = CreateHostBuilder(args);
         using var host = hostBuilder.Build();
-        try
+        using (var scope = host.Services.CreateScope())
         {
-            host.Run();
+            var services = scope.ServiceProvider;
+            var options = services.GetRequiredService<IConfigurationService<AuthServiceConfiguration>>();
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
+            if (options.IsMain)
+            {
+                logger.LogInformation(options.ToString());
+            } else
+            {
+                logger.LogInformation(options.ToString());
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+            try
+            {
+                host.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args)

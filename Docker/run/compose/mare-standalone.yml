@@ -37,6 +37,10 @@ services:
     environment:
       MareSynchronos__CdnFullUrl: "${MARE_CDNURL}"
       MareSynchronos__XIVAPIKey: "${MARE_XIVAPIKEY}"
+      MareSynchronos__Jwt: "${MARE_JWT}"
+      MareSynchronos__JwtKeyId: "${MARE_JWT_KEY_ID}"
+      MareSynchronos__RedisConnectionString: "${MARE_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${MARE_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/server-standalone.json:/opt/MareSynchronosServer/appsettings.json
@@ -50,22 +54,7 @@ services:
       retries: 60
       start_period: 10s
       timeout: 1s
-  # mare-auth:
-  #   image: darkarchon/mare-synchronos-authservice:latest
-  #   restart: on-failure
-  #   environment:
-  #     DOTNET_USE_POLLING_FILE_WATCHER: 1
-  #   ports:
-  #     - 6500:6500/tcp
-  #   volumes:
-  #     - ../config/standalone/authservice-standalone.json:/opt/MareSynchronosAuthService/appsettings.json
-  #     - ../log/authservice-standalone/:/opt/MareSynchronosAuthService/logs/:rw
-  #     - postgres_socket:/var/run/postgresql/:rw
-  #   depends_on:
-  #     mare-server:
-  #       condition: service_healthy
-  #     postgres:
-  #       condition: service_healthy
+
   mare-services:
     image: darkarchon/mare-synchronos-services:latest
     restart: on-failure
@@ -76,10 +65,12 @@ services:
       MareSynchronos__DiscordChannelForMessages: "${MARE_DISCORD_CHANNEL_MAIN}"
       MareSynchronos__DiscordChannelForCommands: "${MARE_DISCORD_CHANNEL_COMMANDS}"
       MareSynchronos__DiscordChannelForReports: "${MARE_DISCORD_CHANNEL_REPORTS}"
-      MareSynchronos__DiscordOAuthClientSecret: "${MARE_DISCORD_OAUTH_CLIENT_SECRET}"
-      MareSynchronos__DiscordOAuthClientId: "${MARE_DISCORD_OAUTH_CLIENT_ID}"
       MareSynchronos__DiscordRoleRegistered: "${MARE_DISCORD_ROLE_REGISTERED}"
-      MareSynchronos__PublicOAuthBaseUri: "${MARE_PUBLIC_OAUTH_BASE_URI}"
+      MareSynchronos__DiscordChannelForBotLog: "${MARE_DISCORD_CHANNEL_BOT_LOG}"
+      MareSynchronos__Jwt: "${MARE_JWT}"
+      MareSynchronos__JwtKeyId: "${MARE_JWT_KEY_ID}"
+      MareSynchronos__RedisConnectionString: "${MARE_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${MARE_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/services-standalone.json:/opt/MareSynchronosServices/appsettings.json
@@ -90,6 +81,31 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+
+  mare-auth:
+    image: darkarchon/mare-synchronos-authservice:latest
+    restart: on-failure
+    environment:
+      MareSynchronos__PublicOAuthBaseUri: "${MARE_PUBLIC_OAUTH_BASE_URI}"
+      MareSynchronos__DiscordOAuthClientSecret: "${MARE_DISCORD_OAUTH_CLIENT_SECRET}"
+      MareSynchronos__DiscordOAuthClientId: "${MARE_DISCORD_OAUTH_CLIENT_ID}"
+      MareSynchronos__Jwt: "${MARE_JWT}"
+      MareSynchronos__JwtKeyId: "${MARE_JWT_KEY_ID}"
+      MareSynchronos__RedisConnectionString: "${MARE_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${MARE_POSTGRES_CONNECTION_STRING}"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+    ports:
+      - 6500:6500/tcp
+    volumes:
+      - ../config/standalone/authservice-standalone.json:/opt/MareSynchronosAuthService/appsettings.json
+      - ../log/authservice-standalone/:/opt/MareSynchronosAuthService/logs/:rw
+      - postgres_socket:/var/run/postgresql/:rw
+    depends_on:
+      mare-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
   mare-files:
     image: darkarchon/mare-synchronos-staticfilesserver:latest
     ports:
@@ -99,6 +115,10 @@ services:
       - .env.local
     environment:
       MareSynchronos__CdnFullUrl: "${MARE_CDNURL}"
+      MareSynchronos__Jwt: "${MARE_JWT}"
+      MareSynchronos__JwtKeyId: "${MARE_JWT_KEY_ID}"
+      MareSynchronos__RedisConnectionString: "${MARE_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${MARE_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/files-standalone.json:/opt/MareSynchronosStaticFilesServer/appsettings.json
@@ -110,18 +130,38 @@ services:
         condition: service_healthy
       mare-server:
         condition: service_healthy
-  # traefik:
-  #   image: traefik:v2.11
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - ../config/standalone/traefik.yml:/etc/traefik/traefik.yml:ro
-  #     - ../config/standalone/dynamic.yml:/etc/traefik/dynamic.yml:ro
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    volumes:
+      - ../config/standalone/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    environment:
+      GF_SECURITY_ADMIN_USER: "${MARE_GF_SECURITY_ADMIN_USER}"
+      GF_SECURITY_ADMIN_PASSWORD: "${MARE_GF_SECURITY_ADMIN_PASSWORD}"
+    depends_on:
+      - prometheus
+    volumes:
+#      - grafana_storage:/var/lib/grafana
+      - ../data/grafana/:/var/lib/grafana
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: "${MARE_CLOUDFLARED_TOKEN}"
 
 volumes:
   postgres_socket:
   cache:
     driver: local
+#  grafana_storage:

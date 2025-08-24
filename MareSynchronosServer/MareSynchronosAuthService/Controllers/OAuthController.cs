@@ -107,7 +107,8 @@ public class OAuthController : AuthControllerBase
 
         if (!response.IsSuccessStatusCode)
         {
-            Logger.LogDebug("Failed to get Discord token for {session}", reqId);
+            using var tokenJsonError = await JsonDocument.ParseAsync(responseBody).ConfigureAwait(false);
+            Logger.LogDebug("Failed to get Discord token for {session}\n-> Received status code {statusCode}\n-> Error: {error}", reqId, response.StatusCode, tokenJsonError.RootElement.GetRawText());
             return BadRequest("Failed to get Discord token");
         }
 
@@ -255,6 +256,7 @@ public class OAuthController : AuthControllerBase
         var discordOAuthUri = Configuration.GetValueOrDefault<Uri?>(nameof(AuthServiceConfiguration.PublicOAuthBaseUri), null);
         var discordClientSecret = Configuration.GetValueOrDefault<string?>(nameof(AuthServiceConfiguration.DiscordOAuthClientSecret), null);
         var discordClientId = Configuration.GetValueOrDefault<string?>(nameof(AuthServiceConfiguration.DiscordOAuthClientId), null);
+        Logger.LogWarning("discordOAuthUri: '{found1}' - discordClientSecret: '{found2}' - discordClientId: '{found3}'", discordOAuthUri, discordClientSecret, discordClientId);
         if (discordClientSecret == null || discordClientId == null || discordOAuthUri == null)
             return null;
         return new Uri(discordOAuthUri, _discordOAuthCall);

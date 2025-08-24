@@ -8,6 +8,7 @@ public class MareConfigurationBase : IMareConfiguration
 {
     public int DbContextPoolSize { get; set; } = 100;
     public string Jwt { get; set; } = string.Empty;
+    public string JwtKeyId {  get; set; } = string.Empty;
     public Uri MainServerAddress { get; set; }
     public int RedisPool { get; set; } = 50;
     public int MetricsPort { get; set; }

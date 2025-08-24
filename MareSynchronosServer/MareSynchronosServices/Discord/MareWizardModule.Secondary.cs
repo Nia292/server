@@ -17,8 +17,12 @@ public partial class MareWizardModule
         _logger.LogInformation("{method}:{userId}", nameof(ComponentSecondary), Context.Interaction.User.Id);
 
         using var mareDb = await GetDbContext().ConfigureAwait(false);
-        var primaryUID = (await mareDb.LodeStoneAuth.Include(u => u.User).SingleAsync(u => u.DiscordId == Context.User.Id).ConfigureAwait(false)).User.UID;
+        var user = await mareDb.LodeStoneAuth.Include(u => u.User).SingleAsync(u => u.DiscordId == Context.User.Id).ConfigureAwait(false);
+        var primaryUID = user.User.UID;
         var secondaryUids = await mareDb.Auth.CountAsync(p => p.PrimaryUserUID == primaryUID).ConfigureAwait(false);
+
+        var allowedUIDs = user.User.IsAdmin ? 5 : user.User.IsModerator ? 1 : 0;
+
         EmbedBuilder eb = new();
         eb.WithColor(Color.Blue);
         eb.WithTitle("Secondary UID");
@@ -26,10 +30,10 @@ public partial class MareWizardModule
             + "Secondary UIDs act as completely separate Mare accounts with their own pair list, joined syncshells, UID and so on." + Environment.NewLine
             + "Use this to create UIDs if you want to use Mare on two separate game instances at once or keep your alts private." + Environment.NewLine + Environment.NewLine
             + "__Note:__ Creating a Secondary UID is _not_ necessary to use Mare for alts." + Environment.NewLine + Environment.NewLine
-            + $"You currently have {secondaryUids} Secondary UIDs out of a maximum of 20.");
+            + $"You currently have {secondaryUids} Secondary UIDs out of a maximum of {allowedUIDs}.");
         ComponentBuilder cb = new();
         AddHome(cb);
-        cb.WithButton("Create Secondary UID", "wizard-secondary-create:" + primaryUID, ButtonStyle.Primary, emote: new Emoji("2️⃣"), disabled: secondaryUids >= 20);
+        cb.WithButton("Create Secondary UID", "wizard-secondary-create:" + primaryUID, ButtonStyle.Primary, emote: new Emoji("2️⃣"), disabled: secondaryUids >= allowedUIDs);
         await ModifyInteraction(eb, cb).ConfigureAwait(false);
     }
 
