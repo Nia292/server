@@ -130,6 +130,7 @@ services:
     #   - 9090:9090
     volumes:
       - ../config/standalone/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    user: "1000:999"
 
   grafana:
     image: grafana/grafana:latest
@@ -143,6 +144,7 @@ services:
       - prometheus
     volumes:
       - ../data/grafana/:/var/lib/grafana
+    user: "1000:999"
 
   cloudflared:
     image: cloudflare/cloudflared:latest

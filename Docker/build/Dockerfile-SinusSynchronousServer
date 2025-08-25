@@ -21,6 +21,7 @@ RUN adduser \
         --no-create-home \
         --quiet \
         --system \
+        --uid 1000 \
         --ingroup dockergroup \
         sinus
 
