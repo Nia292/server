@@ -14,19 +14,20 @@ RUN dotnet publish \
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
+RUN addgroup --gid 999 dockergroup
 RUN adduser \
         --disabled-password \
-        --group \
         --no-create-home \
         --quiet \
         --system \
+        --ingroup dockergroup \
         sinus
 
 COPY --from=build /build /opt/SinusSynchronousStaticFilesServer
-RUN chown -R sinus:sinus /opt/SinusSynchronousStaticFilesServer
+RUN chown -R sinus:dockergroup /opt/SinusSynchronousStaticFilesServer
 RUN apt-get update; apt-get install curl -y
 
-USER sinus:sinus
+USER sinus:dockergroup
 WORKDIR /opt/SinusSynchronousStaticFilesServer
 
 CMD ["./SinusSynchronousStaticFilesServer"]

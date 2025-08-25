@@ -105,8 +105,6 @@ services:
     # ports:
     #   - 6200:6200/tcp
     restart: on-failure
-    env_file:
-      - .env.local
     environment:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
@@ -118,7 +116,7 @@ services:
       - ../config/standalone/files-standalone.json:/opt/SinusSynchronousStaticFilesServer/appsettings.json
       - ../log/files-standalone/:/opt/SinusSynchronousStaticFilesServer/logs/:rw
       - postgres_socket:/var/run/postgresql/:rw
-      - ../data/files-standalone/:/marecache/:rw
+      - ../data/files-standalone/:/sinuscache/:rw
     depends_on:
       postgres:
         condition: service_healthy
