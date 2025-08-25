@@ -11,12 +11,13 @@ services:
       POSTGRES_PASSWORD: "${SINUS_POSTGRES_PASSWORD}"
     volumes:
       - ../data/postgresql/:/var/lib/postgresql/data
-      - postgres_socket:/var/run/postgresql:rw
+#      - postgres_socket:/var/run/postgresql:rw
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${SINUS_POSTGRES_USER} -d ${SINUS_POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    user: "1000:999"
 
   redis:
     image: redis:latest
@@ -129,6 +130,7 @@ services:
     # ports:
     #   - 9090:9090
     volumes:
+      - ../data/prometheus/:/prometheus
       - ../config/standalone/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     user: "1000:999"
 
