@@ -1,3 +1,2 @@
 @echo off
-
-docker build -t darkarchon/mare-synchronos-staticfilesserver:latest . -f ..\Dockerfile-MareSynchronosStaticFilesServer-git --no-cache --pull --force-rm
+docker build -t syrilai/sinus-synchronous-staticfilesserver:latest . -f ..\Dockerfile-SinusSynchronousStaticFilesServer-git --no-cache --pull --force-rm

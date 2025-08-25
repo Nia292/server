@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
+RUN git clone --recurse-submodules https://github.com/MareSynchronos2/server
+
+WORKDIR /server/SinusSynchronousServer/SinusSynchronousServer/
+
+RUN dotnet publish \
+        --configuration=Release \
+        --os=linux \
+        --output=/SinusSynchronousServer \
+        SinusSynchronousServer.csproj
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+
+RUN adduser \
+        --disabled-password \
+        --group \
+        --no-create-home \
+        --quiet \
+        --system \
+        sinus
+
+COPY --from=build /SinusSynchronousServer /opt/SinusSynchronousServer
+RUN chown -R sinus:sinus /opt/SinusSynchronousServer
+RUN apt-get update; apt-get install curl -y
+
+USER sinus:sinus
+WORKDIR /opt/SinusSynchronousServer
+
+CMD ["./SinusSynchronousServer"]

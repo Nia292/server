@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t darkarchon/mare-synchronos-authservice:latest . -f ../Dockerfile-MareSynchronosAuthService-git --no-cache --pull --force-rm
+docker build -t syrilai/sinus-synchronous-authservice:latest . -f ../Dockerfile-SinusSynchronousAuthService-git --no-cache --pull --force-rm

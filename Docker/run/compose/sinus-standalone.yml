@@ -1,0 +1,159 @@
+services:
+  postgres:
+    image: postgres:latest
+    command: ["postgres", "-c", "log_statement=all"]
+    restart: always
+    # ports:
+    #   - 5432:5432/tcp
+    environment:
+      POSTGRES_DB: "${SINUS_POSTGRES_DB}"
+      POSTGRES_USER: "${SINUS_POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${SINUS_POSTGRES_PASSWORD}"
+    volumes:
+      - ../data/postgresql/:/var/lib/postgresql/data
+      - postgres_socket:/var/run/postgresql:rw
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${SINUS_POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\" --appendonly no --requirepass $${SINUS_REDIS_PASSWORD}"]
+    volumes:
+      - cache:/data
+
+  sinus-server:
+    image: syrilai/sinus-synchronous-server:latest
+    restart: on-failure
+    # ports:
+    #   - 6000:6000/tcp
+    #   - 6050:6050/tcp
+    environment:
+      SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
+      SinusSynchronous__XIVAPIKey: "${SINUS_XIVAPIKEY}"
+      SinusSynchronous__Jwt: "${SINUS_JWT}"
+      SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
+      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+    volumes:
+      - ../config/standalone/server-standalone.json:/opt/SinusSynchronousServer/appsettings.json
+      - ../log/server-standalone/:/opt/SinusSynchronousServer/logs/:rw
+      - postgres_socket:/var/run/postgresql/:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:6000/health || exit 1"]
+      retries: 60
+      start_period: 10s
+      timeout: 1s
+
+  sinus-services:
+    image: syrilai/sinus-synchronous-services:latest
+    restart: on-failure
+    environment:
+      SinusSynchronous__DiscordBotToken: "${SINUS_DISCORD_TOKEN}"
+      SinusSynchronous__DiscordChannelForMessages: "${SINUS_DISCORD_CHANNEL_MAIN}"
+      SinusSynchronous__DiscordChannelForCommands: "${SINUS_DISCORD_CHANNEL_COMMANDS}"
+      SinusSynchronous__DiscordChannelForReports: "${SINUS_DISCORD_CHANNEL_REPORTS}"
+      SinusSynchronous__DiscordRoleRegistered: "${SINUS_DISCORD_ROLE_REGISTERED}"
+      SinusSynchronous__DiscordChannelForBotLog: "${SINUS_DISCORD_CHANNEL_BOT_LOG}"
+      SinusSynchronous__Jwt: "${SINUS_JWT}"
+      SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
+      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+    volumes:
+      - ../config/standalone/services-standalone.json:/opt/SinusSynchronousServices/appsettings.json
+      - ../log/services-standalone/:/opt/SinusSynchronousServices/logs/:rw
+      - postgres_socket:/var/run/postgresql/:rw
+    depends_on:
+      sinus-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  sinus-auth:
+    image: syrilai/sinus-synchronous-authservice:latest
+    restart: on-failure
+    environment:
+      SinusSynchronous__PublicOAuthBaseUri: "${SINUS_PUBLIC_OAUTH_BASE_URI}"
+      SinusSynchronous__DiscordOAuthClientSecret: "${SINUS_DISCORD_OAUTH_CLIENT_SECRET}"
+      SinusSynchronous__DiscordOAuthClientId: "${SINUS_DISCORD_OAUTH_CLIENT_ID}"
+      SinusSynchronous__Jwt: "${SINUS_JWT}"
+      SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
+      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+    # ports:
+    #   - 6500:6500/tcp
+    volumes:
+      - ../config/standalone/authservice-standalone.json:/opt/SinusSynchronousAuthService/appsettings.json
+      - ../log/authservice-standalone/:/opt/SinusSynchronousAuthService/logs/:rw
+      - postgres_socket:/var/run/postgresql/:rw
+    depends_on:
+      sinus-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  sinus-files:
+    image: syrilai/sinus-synchronous-staticfilesserver:latest
+    # ports:
+    #   - 6200:6200/tcp
+    restart: on-failure
+    env_file:
+      - .env.local
+    environment:
+      SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
+      SinusSynchronous__Jwt: "${SINUS_JWT}"
+      SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
+      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      DOTNET_USE_POLLING_FILE_WATCHER: 1
+    volumes:
+      - ../config/standalone/files-standalone.json:/opt/SinusSynchronousStaticFilesServer/appsettings.json
+      - ../log/files-standalone/:/opt/SinusSynchronousStaticFilesServer/logs/:rw
+      - postgres_socket:/var/run/postgresql/:rw
+      - ../data/files-standalone/:/marecache/:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+      sinus-server:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    # ports:
+    #   - 9090:9090
+    volumes:
+      - ../config/standalone/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    # ports:
+    #   - 3000:3000
+    environment:
+      GF_SECURITY_ADMIN_USER: "${SINUS_GF_SECURITY_ADMIN_USER}"
+      GF_SECURITY_ADMIN_PASSWORD: "${SINUS_GF_SECURITY_ADMIN_PASSWORD}"
+    depends_on:
+      - prometheus
+    volumes:
+      - ../data/grafana/:/var/lib/grafana
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: "${SINUS_CLOUDFLARED_TOKEN}"
+
+volumes:
+  postgres_socket:
+  cache:
+    driver: local

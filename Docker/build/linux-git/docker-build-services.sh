@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t darkarchon/mare-synchronos-services:latest . -f ../Dockerfile-MareSynchronosServices-git --no-cache --pull --force-rm
+docker build -t syrilai/sinus-synchronous-services:latest . -f ../Dockerfile-SinusSynchronousServices-git --no-cache --pull --force-rm
