@@ -13,14 +13,14 @@ services:
       - ../data/postgresql/:/var/lib/postgresql/data
       - postgres_socket:/var/run/postgresql:rw
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${SINUS_POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${SINUS_POSTGRES_USER} -d ${SINUS_POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:latest
-    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\" --appendonly no --requirepass $${SINUS_REDIS_PASSWORD}"]
+    command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\" --appendonly no --requirepass ${SINUS_REDIS_PASSWORD}"]
     volumes:
       - cache:/data
 
@@ -35,7 +35,7 @@ services:
       SinusSynchronous__XIVAPIKey: "${SINUS_XIVAPIKEY}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
-      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
       ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
@@ -63,7 +63,7 @@ services:
       SinusSynchronous__DiscordChannelForBotLog: "${SINUS_DISCORD_CHANNEL_BOT_LOG}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
-      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
       ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
@@ -85,7 +85,7 @@ services:
       SinusSynchronous__DiscordOAuthClientId: "${SINUS_DISCORD_OAUTH_CLIENT_ID}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
-      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
       ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     # ports:
@@ -111,7 +111,7 @@ services:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
-      SinusSynchronous__RedisConnectionString: "${SINUS_REDIS_CONNECTION_STRING}"
+      SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
       ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
