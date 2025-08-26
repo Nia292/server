@@ -6,7 +6,7 @@ There are two directories: `build` and `run`
 
 ## 1. Build Images
 To build a single image, or multiple images, use either `windows.ps1` or `linux.sh`.
-There is two ways to build the necessary docker images:
+There are two ways to build the necessary docker images:
 - `-local` (`-Local` for Windows) will run the image build against the current locally present sources
 - `-git` (`-Git` for Windows) will run the image build against the latest git main commit
 

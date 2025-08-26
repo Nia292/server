@@ -5,8 +5,6 @@ services:
     restart: always
     # ports:
     #   - 5432:5432/tcp
-    env_files:
-      - .env.local
     environment:
       POSTGRES_DB: "${SINUS_POSTGRES_DB}"
       POSTGRES_USER: "${SINUS_POSTGRES_USER}"
@@ -23,8 +21,9 @@ services:
 
   redis:
     image: redis:latest
-    env_files:
-      - .env.local
+    env_file:
+      - path: ./.env.local
+        required: true
     command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\" --appendonly no --requirepass ${SINUS_REDIS_PASSWORD}"]
     volumes:
       - cache:/data
@@ -35,8 +34,6 @@ services:
     # ports:
     #   - 6000:6000/tcp
     #   - 6050:6050/tcp
-    env_files:
-      - .env.local
     environment:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
       SinusSynchronous__XIVAPIKey: "${SINUS_XIVAPIKEY}"
@@ -61,8 +58,6 @@ services:
   sinus-services:
     image: syrilai/sinus-synchronous-services:latest
     restart: on-failure
-    env_files:
-      - .env.local
     environment:
       SinusSynchronous__DiscordBotToken: "${SINUS_DISCORD_TOKEN}"
       SinusSynchronous__DiscordChannelForMessages: "${SINUS_DISCORD_CHANNEL_MAIN}"
@@ -88,8 +83,6 @@ services:
   sinus-auth:
     image: syrilai/sinus-synchronous-authservice:latest
     restart: on-failure
-    env_files:
-      - .env.local
     environment:
       SinusSynchronous__PublicOAuthBaseUri: "${SINUS_PUBLIC_OAUTH_BASE_URI}"
       SinusSynchronous__DiscordOAuthClientSecret: "${SINUS_DISCORD_OAUTH_CLIENT_SECRET}"
@@ -115,8 +108,6 @@ services:
     image: syrilai/sinus-synchronous-staticfilesserver:latest
     # ports:
     #   - 6200:6200/tcp
-    env_files:
-      - .env.local
     restart: on-failure
     environment:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
@@ -151,8 +142,6 @@ services:
     restart: unless-stopped
     # ports:
     #   - 3000:3000
-    env_files:
-      - .env.local
     environment:
       GF_SECURITY_ADMIN_USER: "${SINUS_GF_SECURITY_ADMIN_USER}"
       GF_SECURITY_ADMIN_PASSWORD: "${SINUS_GF_SECURITY_ADMIN_PASSWORD}"
