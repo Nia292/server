@@ -55,7 +55,7 @@ In your Cloudflare Tunnel, you should configure the following under Public hostn
 
 Naturally, you can also do the proxying with another service or on your own.
 
-## 3. Run Mare Server
+## 3. Run the Sinus Synchronous Server
 Head to `run` and start the services using either `\.linux.sh` or `\.windows.ps1`.
 There are two modes, each mutually exclusive:
 - `-standalone` (`-Standalone` for Windows) to run the services as a single instance.
