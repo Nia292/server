@@ -1,39 +1,95 @@
-# Mare Synchronos Docker Setup
-This is primarily aimed at developers who want to spin up their own local server for development purposes without having to spin up a VM.
+# Sinus Synchronous Docker Setup
+This is primarily aimed at developers who want to spin up their own local server for development purposes without having to spin up a VM, but also works for production ready servers, granted you have the knowledge to configure it securely.
 Obligatory requires Docker to be installed on the machine.
 
 There are two directories: `build` and `run`
 
-## 1. build images
-There is two ways to build the necessary docker images which are differentiated by the folders `-local` and `-git`  
-- -local will run the image build against the current locally present sources  
-- -git will run the image build against the latest git main commit  
-It is possible to build all required images at once by running `docker-build.bat/sh` (Server, Servies, StaticFilesServer) or all 3 separately with `docker-build-<whatever>.bat/sh`
+## 1. Build Images
+To build a single image, or multiple images, use either `windows.ps1` or `linux.sh`.
+There is two ways to build the necessary docker images:
+- `-local` (`-Local` for Windows) will run the image build against the current locally present sources
+- `-git` (`-Git` for Windows) will run the image build against the latest git main commit
+
+Alongside that, you will need to specify what images to build. You have a few options here:
+- Either `-all` (`-All` for Windows) to build all images
+- Or `-server`, `-authservice`, `-services`, `-staticfileserver` (`-Server`, `-AuthService`, `-Services`, `-StaticFilesServer` for Windows) for the respective images. You can bundle these in the same command.
+
+Here are a few examples:
+
+```bash
+# Build all images using local sources
+./linux.sh -local -all
+
+# Build the server and auth service images using git sources
+./linux.sh -git -server -authservice
+
+# Build the services image using local sources
+./linux.sh -local -services
+```
+
+```ps1
+# Build all images using local sources
+./windows.ps1 -Local -All
+
+# Build the server and auth service images using git sources
+./windows.ps1 -Git -Server -AuthService
+
+# Build the services image using local sources
+./windows.ps1 -Local -Services
+```
+
 
 ## 2. Configure ports + token
-You should set up 2 environment variables that hold server specific configuration and open up ports.  
-The default ports used through the provided configuration are `6000` for the main server and `6200` as well as `6201` for the files downloads.
-Both ports should be open to your computer through your router if you wish to test this with clients.
+Head to `run/compose` and make a copy of the `.env.example` file to `.env.local` and edit the environment variables inside of there with the appropriate values.
+The Docker Compose file uses Cloudflare Tunnel for simplified access to the services.
 
-Furthermore there are two environment variables `DEV_MARE_CDNURL` and `DEV_MARE_DISCORDTOKEN` which you are required to set.  
-`DEV_MARE_CDNURL` should point to `http://<yourip or dyndns>:6200/cache/` and `DEV_MARE_DISCORDTOKEN` is an oauth token from a bot you need to create through the Discord bot portal. 
-You should also set `DEV_MARE_CDNURL2` to `http://<yourip or dyndns>:6201/cache/`
-It is enough to set them as User variables. The compose files refer to those environment variables to overwrite configuration settings for the Server and Services to set those respective values.  
-It is also possible to set those values in the configuration.json files themselves.  
-Without a valid Discord bot you will not be able to register accounts without fumbling around in the PostgreSQL database.
+In your Cloudflare Tunnel, you should configure the following under Public hostnames in this order:
+
+|   | Public hostname          | Path  | Service                  |
+|---|--------------------------|-------|--------------------------|
+| 1 | sinus.<your_domain>      | auth  | http://sinus-auth:6500   |
+| 2 | sinus.<your_domain>      | oauth | http://sinus-auth:6500   |
+| 3 | sinus.<your_domain>      | *     | http://sinus-server:6000 |
+| 4 | sinuscdn.<your_domain>   | *     | http://sinus-files:6200  |
+| 5 | sinusstats.<your_domain> | *     | http://grafana:3000      |
+
+Naturally, you can also do the proxying with another service or on your own.
 
 ## 3. Run Mare Server
-The run folder contains two major Mare configurations which is `standalone` and `sharded`.  
-Both configurations default to port `6000` for the main server connection and `6200` for the files downloads. Sharded configuration additionally uses `6201` for downloads. No HTTPS.  
-All `appsettings.json` configurations provided are extensive at the point of writing, note the differences between the shard configurations and the main servers respectively.  
-They can be used as examples if you want to spin up your own servers otherwise.
+Head to `run` and start the services using either `\.linux.sh` or `\.windows.ps1`.
+There are two modes, each mutually exclusive:
+- `-standalone` (`-Standalone` for Windows) to run the services as a single instance.
+- `-sharded` (`-Sharded` for Windows) to run the services in a sharded configuration.
 
-The scripts to start the respective services are divided by name, the `daemon-start/stop` files use `compose up -d` to run it in the background and to be able to stop the containers as well.  
-The respective docker-compose files lie in the `compose` folder. I would not recommend editing them unless you know what you are doing.  
-All data (postgresql and files uploads) will be thrown into the `data` folder after startup.  
-All logs from the mare services will be thrown into `logs`, divided by shard, where applicable.
+By supplying `-start` (`-Start` for Windows), the services will be started in the background. To stop them, you can use the `-stop` (`-Stop` for Windows) flag.
+If you do not provide either `-start` or `-stop`, the services will run in the foreground.
 
-The `standalone` configuration features PostgeSQL, Mare Server, Mare StaticFilesServer and Mare Services.  
-The `sharded` configuration features PostgreSQL, Redis, HAProxy, Mare Server Main, 2 Mare Server Shards, Mare Services, Mare StaticFilesServer Main and 2 Mare StaticFilesServer Shards.  
-Haproxy is set up that it takes the same ports as the `standalone` configuration and distributes the connections between the shards.  
-In theory it should be possible to switch between the `standalone` and `sharded` configuration by shutting down one composition container and starting up the other. They share the same Database.
+Here are a few examples:
+
+```bash
+# Start the services in standalone mode
+./linux.sh -standalone -start
+
+# Start the services in sharded mode
+./linux.sh -sharded -start
+
+# Stop the services
+./linux.sh -stop
+
+# Start in the foreground
+./linux.sh -standalone
+```
+
+```ps1
+# Start the services in standalone mode
+./windows.ps1 -Standalone -Start
+
+# Start the services in sharded mode
+./windows.ps1 -Sharded -Start
+
+# Stop the services
+./windows.ps1 -Stop
+
+# Start in the foreground
+./windows.ps1 -Standalone
+```

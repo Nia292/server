@@ -5,6 +5,8 @@ services:
     restart: always
     # ports:
     #   - 5432:5432/tcp
+    env_files:
+      - .env.local
     environment:
       POSTGRES_DB: "${SINUS_POSTGRES_DB}"
       POSTGRES_USER: "${SINUS_POSTGRES_USER}"
@@ -17,10 +19,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    user: "1000:999"
+#    user: "1000:999"
 
   redis:
     image: redis:latest
+    env_files:
+      - .env.local
     command: [sh, -c, "rm -f /data/dump.rdb && redis-server --save \"\" --appendonly no --requirepass ${SINUS_REDIS_PASSWORD}"]
     volumes:
       - cache:/data
@@ -31,13 +35,15 @@ services:
     # ports:
     #   - 6000:6000/tcp
     #   - 6050:6050/tcp
+    env_files:
+      - .env.local
     environment:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
       SinusSynchronous__XIVAPIKey: "${SINUS_XIVAPIKEY}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
       SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
-      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${SINUS_POSTGRES_DB};Username=${SINUS_POSTGRES_USER};Password=${SINUS_POSTGRES_PASSWORD};Keepalive=15;Minimum Pool Size=10;Maximum Pool Size=50;No Reset On Close=true;Max Auto Prepare=50;Enlist=false"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/server-standalone.json:/opt/SinusSynchronousServer/appsettings.json
@@ -55,6 +61,8 @@ services:
   sinus-services:
     image: syrilai/sinus-synchronous-services:latest
     restart: on-failure
+    env_files:
+      - .env.local
     environment:
       SinusSynchronous__DiscordBotToken: "${SINUS_DISCORD_TOKEN}"
       SinusSynchronous__DiscordChannelForMessages: "${SINUS_DISCORD_CHANNEL_MAIN}"
@@ -80,6 +88,8 @@ services:
   sinus-auth:
     image: syrilai/sinus-synchronous-authservice:latest
     restart: on-failure
+    env_files:
+      - .env.local
     environment:
       SinusSynchronous__PublicOAuthBaseUri: "${SINUS_PUBLIC_OAUTH_BASE_URI}"
       SinusSynchronous__DiscordOAuthClientSecret: "${SINUS_DISCORD_OAUTH_CLIENT_SECRET}"
@@ -87,7 +97,7 @@ services:
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
       SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
-      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${SINUS_POSTGRES_DB};Username=${SINUS_POSTGRES_USER};Password=${SINUS_POSTGRES_PASSWORD};Keepalive=15;Minimum Pool Size=10;Maximum Pool Size=50;No Reset On Close=true;Max Auto Prepare=50;Enlist=false"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     # ports:
     #   - 6500:6500/tcp
@@ -105,13 +115,15 @@ services:
     image: syrilai/sinus-synchronous-staticfilesserver:latest
     # ports:
     #   - 6200:6200/tcp
+    env_files:
+      - .env.local
     restart: on-failure
     environment:
       SinusSynchronous__CdnFullUrl: "${SINUS_CDNURL}"
       SinusSynchronous__Jwt: "${SINUS_JWT}"
       SinusSynchronous__JwtKeyId: "${SINUS_JWT_KEY_ID}"
       SinusSynchronous__RedisConnectionString: "redis,password=${SINUS_REDIS_PASSWORD}"
-      ConnectionStrings__DefaultConnection: "${SINUS_POSTGRES_CONNECTION_STRING}"
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${SINUS_POSTGRES_DB};Username=${SINUS_POSTGRES_USER};Password=${SINUS_POSTGRES_PASSWORD};Keepalive=15;Minimum Pool Size=10;Maximum Pool Size=50;No Reset On Close=true;Max Auto Prepare=50;Enlist=false"
       DOTNET_USE_POLLING_FILE_WATCHER: 1
     volumes:
       - ../config/standalone/files-standalone.json:/opt/SinusSynchronousStaticFilesServer/appsettings.json
@@ -139,6 +151,8 @@ services:
     restart: unless-stopped
     # ports:
     #   - 3000:3000
+    env_files:
+      - .env.local
     environment:
       GF_SECURITY_ADMIN_USER: "${SINUS_GF_SECURITY_ADMIN_USER}"
       GF_SECURITY_ADMIN_PASSWORD: "${SINUS_GF_SECURITY_ADMIN_PASSWORD}"
