@@ -104,22 +104,40 @@ public partial class SinusWizardModule
         ComponentBuilder cb = new();
         bool registerSuccess = false;
 
-        bool hasAccess = false;
-        var restUser = await Context.Guild.GetUserAsync(Context.Interaction.User.Id).ConfigureAwait(false);
-        if (restUser != null)
+        var isRegistrationLocked = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.LockRegistrationToRole), false);
+
+        if (isRegistrationLocked)
         {
-            hasAccess = restUser.RoleIds.Contains(1408474114804682812u); // 
+            bool hasAccess = false;
+            var registrationRole = _sinusServicesConfiguration.GetValueOrDefault<ulong?>(nameof(ServicesConfiguration.DiscordRegistrationRole), null!);
+            if (registrationRole == null)
+            {
+                eb.WithColor(Color.Red);
+                eb.WithTitle("Invalid Service Configuration");
+                eb.WithDescription("The service was set up with an invalid configuration. Role registration lock has been enabled, but no role has been specified.");
+                AddHome(cb);
+                await ModifyInteraction(eb, cb).ConfigureAwait(false);
+                return;
+            }
+
+            var restUser = await Context.Guild.GetUserAsync(Context.Interaction.User.Id).ConfigureAwait(false);
+            if (restUser != null)
+            {
+                hasAccess = restUser.RoleIds.Contains((ulong)registrationRole);
+            }
+
+            if (!hasAccess)
+            {
+                eb.WithColor(Color.Red);
+                eb.WithTitle("Not Authorized");
+                eb.WithDescription($"You can not register without the <@&{registrationRole}> role.");
+                AddHome(cb);
+                await ModifyInteraction(eb, cb).ConfigureAwait(false);
+                return;
+            }
         }
 
-        if (!hasAccess)
-        {
-            eb.WithColor(Color.Red);
-            eb.WithTitle("Not Authorized");
-            eb.WithDescription("You can not register without the <@&1408474114804682812> role. Read <#1408474268458684527> for more information.");
-            AddHome(cb);
-            await ModifyInteraction(eb, cb).ConfigureAwait(false);
-            return;
-        }
+        
         
 
         eb.WithColor(Color.Green);
