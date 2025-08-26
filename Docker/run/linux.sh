@@ -27,39 +27,47 @@ fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-function Import-DotEnv {
-    param(
-        [string]$Path = ".env"
-    )
-
-    if (-not (Test-Path $Path)) {
-        Write-Warning "Env file not found: $Path"
-        return
-    }
-
-    Get-Content $Path | ForEach-Object {
-        if ($_ -match '^\s*$' -or $_.TrimStart().StartsWith('#')) {
-            return # skip empty or comment lines
-        }
-
-        $idx = $_.IndexOf('=')
-        if ($idx -gt -1) {
-            $name  = $_.Substring(0, $idx).Trim()
-            $value = $_.Substring($idx + 1).Trim()
-
+import_dotenv() {
+    local env_file="${1:-.env}"
+    
+    # Check if file exists
+    if [[ ! -f "$env_file" ]]; then
+        echo "Warning: Env file not found: $env_file" >&2
+        return 1
+    fi
+    
+    # Process each line in the file
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        if [[ -z "$line" || "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]]; then
+            continue
+        fi
+        
+        # Check if line contains '='
+        if [[ "$line" == *"="* ]]; then
+            # Split on first '=' occurrence
+            name="${line%%=*}"
+            value="${line#*=}"
+            
+            # Trim whitespace from name and value
+            name="${name#"${name%%[![:space:]]*}"}"   # trim leading
+            name="${name%"${name##*[![:space:]]}"}"   # trim trailing
+            value="${value#"${value%%[![:space:]]*}"}" # trim leading
+            value="${value%"${value##*[![:space:]]}"}" # trim trailing
+            
             # Remove wrapping quotes if present
-            if (($value.StartsWith('"') -and $value.EndsWith('"')) -or
-                ($value.StartsWith("'") -and $value.EndsWith("'"))) {
-                $value = $value.Substring(1, $value.Length - 2)
-            }
-
-            Set-Content "env:\$name" $value
-            Write-Host "+ $name"
-        }
-    }
+            if [[ "$value" =~ ^\".*\"$ ]] || [[ "$value" =~ ^\'.*\'$ ]]; then
+                value="${value:1:-1}"
+            fi
+            
+            # Export the variable and show confirmation
+            export "$name=$value"
+            echo "+ $name"
+        fi
+    done < "$env_file"
 }
 
-Import-DotEnv "./compose/.env.local"
+import_dotenv "./compose/.env.local"
 
 if $START; then
   if $STANDALONE; then
