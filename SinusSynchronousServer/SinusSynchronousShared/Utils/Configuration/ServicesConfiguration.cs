@@ -12,6 +12,7 @@ public class ServicesConfiguration : SinusConfigurationBase
     public ulong? DiscordRoleRegistered { get; set; } = null!;
     public bool KickNonRegisteredUsers { get; set; } = false;
     public Uri MainServerAddress { get; set; } = null;
+    public int UidLength { get; set; } = 10;
     public Dictionary<ulong, string> VanityRoles { get; set; } = new Dictionary<ulong, string>();
 
     public override string ToString()

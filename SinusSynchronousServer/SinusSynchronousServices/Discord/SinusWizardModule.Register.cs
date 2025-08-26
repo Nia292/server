@@ -252,10 +252,12 @@ public partial class SinusWizardModule
 
         var user = new User();
 
+        var uidLength = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.UidLength), 10);
+
         var hasValidUid = false;
         while (!hasValidUid)
         {
-            var uid = StringUtils.GenerateRandomString(10);
+            var uid = StringUtils.GenerateRandomString(uidLength);
             if (db.Users.Any(u => u.UID == uid || u.Alias == uid)) continue;
             user.UID = uid;
             hasValidUid = true;
