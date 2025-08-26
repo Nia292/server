@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
+COPY SinusAPI /server/SinusAPI
+COPY SinusSynchronousServer/SinusSynchronousShared /server/SinusSynchronousServer/SinusSynchronousShared
+COPY SinusSynchronousServer/SinusSynchronousServer /server/SinusSynchronousServer/SinusSynchronousServer
+COPY SinusSynchronousServer/SinusSynchronousAuthService /server/SinusSynchronousServer/SinusSynchronousAuthService
+
+WORKDIR /server/SinusSynchronousServer/SinusSynchronousServer/
+
+RUN dotnet publish \
+        --configuration=Release \
+        --os=linux \
+        --output=/build \
+        SinusSynchronousServer.csproj
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
+
+RUN adduser \
+        --disabled-password \
+        --group \
+        --no-create-home \
+        --quiet \
+        --system \
+        sinus
+
+COPY --from=build /build /opt/SinusSynchronousServer
+RUN chown -R sinus:sinus /opt/SinusSynchronousServer
+RUN apt-get update; apt-get install curl -y
+
+USER sinus:sinus
+WORKDIR /opt/SinusSynchronousServer
+
+CMD ["./SinusSynchronousServer"]

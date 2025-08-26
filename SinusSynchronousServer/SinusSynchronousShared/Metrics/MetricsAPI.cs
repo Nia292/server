@@ -1,0 +1,53 @@
+﻿namespace SinusSynchronousShared.Metrics;
+
+public class MetricsAPI
+{
+    public const string CounterInitializedConnections = "sinus_initialized_connections";
+    public const string GaugeConnections = "sinus_connections";
+    public const string GaugeAuthorizedConnections = "sinus_authorized_connections";
+    public const string GaugeAvailableWorkerThreads = "sinus_available_threadpool";
+    public const string GaugeAvailableIOWorkerThreads = "sinus_available_threadpool_io";
+    public const string GaugeUsersRegistered = "sinus_users_registered";
+    public const string CounterUsersRegisteredDeleted = "sinus_users_registered_deleted";
+    public const string GaugePairs = "sinus_pairs";
+    public const string GaugePairsPaused = "sinus_pairs_paused";
+    public const string GaugeFilesTotal = "sinus_files";
+    public const string GaugeFilesTotalColdStorage = "sinus_files_cold";
+    public const string GaugeFilesTotalSize = "sinus_files_size";
+    public const string GaugeFilesTotalSizeColdStorage = "sinus_files_size_cold";
+    public const string GaugeFilesDownloadingFromCache = "sinus_files_downloading_from_cache";
+    public const string GaugeFilesTasksWaitingForDownloadFromCache = "sinus_files_waiting_for_dl";
+    public const string CounterUserPushData = "sinus_user_push";
+    public const string CounterUserPushDataTo = "sinus_user_push_to";
+    public const string CounterAuthenticationRequests = "sinus_auth_requests";
+    public const string CounterAuthenticationCacheHits = "sinus_auth_requests_cachehit";
+    public const string CounterAuthenticationFailures = "sinus_auth_requests_fail";
+    public const string CounterAuthenticationSuccesses = "sinus_auth_requests_success";
+    public const string GaugeAuthenticationCacheEntries = "sinus_auth_cache";
+    public const string GaugeGroups = "sinus_groups";
+    public const string GaugeGroupPairs = "sinus_groups_pairs";
+    public const string GaugeFilesUniquePastHour = "sinus_files_unique_past_hour";
+    public const string GaugeFilesUniquePastHourSize = "sinus_files_unique_past_hour_size";
+    public const string GaugeFilesUniquePastDay = "sinus_files_unique_past_day";
+    public const string GaugeFilesUniquePastDaySize = "sinus_files_unique_past_day_size";
+    public const string GaugeCurrentDownloads = "sinus_current_downloads";
+    public const string GaugeQueueFree = "sinus_download_queue_free";
+    public const string GaugeQueueActive = "sinus_download_queue_active";
+    public const string GaugeQueueInactive = "sinus_download_queue_inactive";
+    public const string GaugeDownloadQueue = "sinus_download_queue";
+    public const string GaugeDownloadQueueCancelled = "sinus_download_queue_cancelled";
+    public const string GaugeDownloadPriorityQueue = "sinus_download_priority_queue";
+    public const string GaugeDownloadPriorityQueueCancelled = "sinus_download_priority_queue_cancelled";
+    public const string CounterFileRequests = "sinus_files_requests";
+    public const string CounterFileRequestSize = "sinus_files_request_size";
+    public const string CounterUserPairCacheHit = "sinus_pairscache_hit";
+    public const string CounterUserPairCacheMiss = "sinus_pairscache_miss";
+    public const string GaugeUserPairCacheUsers = "sinus_pairscache_users";
+    public const string GaugeUserPairCacheEntries = "sinus_pairscache_entries";
+    public const string CounterUserPairCacheNewEntries = "sinus_pairscache_new_entries";
+    public const string CounterUserPairCacheUpdatedEntries = "sinus_pairscache_updated_entries";
+    public const string GaugeGposeLobbies = "sinus_gpose_lobbies";
+    public const string GaugeGposeLobbyUsers = "sinus_gpose_lobby_users";
+    public const string GaugeHubConcurrency = "sinus_free_concurrent_hub_calls";
+    public const string GaugeHubQueuedConcurrency = "sinus_free_concurrent_queued_hub_calls";
+}

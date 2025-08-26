@@ -1,0 +1,20 @@
+{
+	"SinusSynchronous": {
+		"ShardName": "Services",
+		"MetricsPort": 6150,
+		"MainServerAddress": "http://sinus-server:6000/",
+		"DiscordChannelForMessages": "",
+		"DiscordChannelForCommands": "",
+		"DiscordChannelForBotLog": "",
+		"DiscordRoleRegistered": "",
+		"KickNonRegisteredUsers": false,
+		"VanityRoles": { "0": "Vanity" },
+		"UidLength": 10,
+		"LockRegistrationToRole": false,
+		"DiscordRegistrationRole": ""
+	},
+	"AllowedHosts": "*",
+	"Kestrel": {},
+	"IpRateLimiting": {},
+	"IPRateLimitPolicies": {}
+}

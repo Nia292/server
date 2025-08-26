@@ -1,0 +1,30 @@
+{
+	"SinusSynchronous": {
+		"MainServerAddress": "http://sinus-server:6000/",
+		"MetricsPort": 6250,
+		"ShardName": "Files",
+
+		"IsDistributionNode": true,
+		"MainFileServerAddress": "",
+		"ForcedDeletionOfFilesAfterHours": -1,
+		"CacheSizeHardLimitInGiB": 10,
+		"UnusedFileRetentionPeriodInDays": 7,
+		"CacheDirectory": "/sinuscache/",
+		"DownloadQueueSize": 50,
+		"RemoteCacheSourceUri": "",
+		"UseColdStorage": false,
+		"ColdStorageDirectory": "",
+		"ColdStorageSizeHardLimitInGiB": -1,
+		"ColdStorageUnusedFileRetentionPeriodInDays": 30
+	},
+	"AllowedHosts": "*",
+	"Kestrel": {
+		"Endpoints": {
+			"Http": {
+				"Url": "http://+:6200"
+			}
+		}
+	},
+	"IpRateLimiting": {},
+	"IPRateLimitPolicies": {}
+}
