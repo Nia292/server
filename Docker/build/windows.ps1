@@ -38,6 +38,8 @@ if ($Git) {
   $Suffix = ""
 }
 
+git submodule update --init --remote --recursive
+
 $MappedServices = @{
   'AuthService'      = "sinus-synchronous-authservice"
   'Server'           = "sinus-synchronous-server"

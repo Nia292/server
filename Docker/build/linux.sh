@@ -50,6 +50,8 @@ else
   SUFFIX=""
 fi
 
+git submodule update --init --remote --recursive
+
 # Associative array for service mappings
 declare -A MAPPED_SERVICES=(
   ["AuthService"]="sinus-synchronous-authservice"
