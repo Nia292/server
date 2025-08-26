@@ -357,3 +357,11 @@ Docker/run/data/
 .env.*
 !.env.example
 !.env.*.example
+
+# config appsettings
+Docker/run/config/standalone/*.appsettings.json
+!Docker/run/config/standalone/*.appsettings.example.json
+
+# docker compose
+Docker/run/compose/standalone.yml
+Docker/run/compose/sharded.yml

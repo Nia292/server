@@ -1,0 +1,29 @@
+{
+	"SinusSynchronous": {
+		"ShardName": "Main",
+		"MetricsPort": 6050,
+		"MainServerAddress": "",
+		"FailedAuthForTempBan": 5,
+		"TempBanDurationInMinutes": 5,
+		"WhitelistedIps": [""],
+		"CdnFullUrl": "http://sinus-files:6200",
+		"MaxExistingGroupsByUser": 3,
+		"MaxJoinedGroupsByUser": 10,
+		"MaxGroupUserCount": 100,
+		"PurgeUnusedAccounts": true,
+		"PurgeUnusedAccountsPeriodInDays": 30,
+		"ExpectedClientVersion": "1.11.24",
+		"MaxCharaDataByUser": 25,
+		"MaxCharaDataByUserVanity": 50
+	},
+	"AllowedHosts": "*",
+	"Kestrel": {
+		"Endpoints": {
+			"Http": {
+				"Url": "http://+:6000"
+			}
+		}
+	},
+	"IpRateLimiting": {},
+	"IPRateLimitPolicies": {}
+}

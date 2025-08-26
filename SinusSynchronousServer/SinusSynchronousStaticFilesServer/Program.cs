@@ -37,6 +37,7 @@ public class Program
             .UseConsoleLifetime()
             .ConfigureAppConfiguration((ctx, config) =>
             {
+                config.AddJsonFile("base.appsettings.json", optional: true, reloadOnChange: true);
                 var appSettingsPath = Environment.GetEnvironmentVariable("APPSETTINGS_PATH");
                 if (!string.IsNullOrEmpty(appSettingsPath))
                 {
