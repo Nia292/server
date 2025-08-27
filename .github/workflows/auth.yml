@@ -1,0 +1,23 @@
+name: Build Sinus Auth Service
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: 'true'
+      - uses: nelonoel/branch-name@v1.0.1
+      - uses: mr-smithers-excellent/docker-build-push@v6.7
+        name: Build & push Docker image
+        with:
+          image: ${{ github.event.repository.name }}/sinus-auth
+          tags: ${{env.BRANCH_NAME}}
+          registry: docker.pkg.github.com
+          dockerfile: Docker/build/Dockerfile-SinusSynchronousAuthService
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
