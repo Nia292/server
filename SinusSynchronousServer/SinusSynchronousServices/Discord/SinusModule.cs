@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Net.Http.Headers;
+using Discord;
 using Discord.Interactions;
 using SinusSynchronousShared.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ public class SinusModule : InteractionModuleBase
     private readonly IServiceProvider _services;
     private readonly IConfigurationService<ServicesConfiguration> _sinusServicesConfiguration;
     private readonly IConnectionMultiplexer _connectionMultiplexer;
+    private readonly ServerTokenGenerator _serverTokenGenerator;
 
     public SinusModule(ILogger<SinusModule> logger, IServiceProvider services,
         IConfigurationService<ServicesConfiguration> sinusServicesConfiguration,
@@ -103,6 +105,7 @@ public class SinusModule : InteractionModuleBase
         try
         {
             using HttpClient c = new HttpClient();
+            c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _serverTokenGenerator.Token);
             await c.PostAsJsonAsync(new Uri(_sinusServicesConfiguration.GetValue<Uri>
                 (nameof(ServicesConfiguration.MainServerAddress)), "/msgc/sendMessage"), new ClientMessage(messageType, message, uid ?? string.Empty))
                 .ConfigureAwait(false);
