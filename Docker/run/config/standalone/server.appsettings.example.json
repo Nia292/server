@@ -7,14 +7,18 @@
 		"TempBanDurationInMinutes": 5,
 		"WhitelistedIps": [""],
 		"CdnFullUrl": "http://sinus-files:6200",
-		"MaxExistingGroupsByUser": 3,
-		"MaxJoinedGroupsByUser": 10,
-		"MaxGroupUserCount": 100,
+		"MaxExistingGroupsByUser": 2,
+		"MaxJoinedGroupsByUser": 5,
+		"MaxGroupUserCount": 50,
 		"PurgeUnusedAccounts": true,
 		"PurgeUnusedAccountsPeriodInDays": 30,
 		"ExpectedClientVersion": "1.11.24",
 		"MaxCharaDataByUser": 25,
-		"MaxCharaDataByUserVanity": 50
+		"MaxCharaDataByUserVanity": 50,
+		"ServerName": "Sinus Synchronous",
+		"ServerPublicUri": "wss://<your_domain>",
+		"DiscordInvite": null,
+		"ServerRules": null
 	},
 	"AllowedHosts": "*",
 	"Kestrel": {
