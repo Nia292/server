@@ -15,6 +15,8 @@ public class SinusConfigurationBase : ISinusConfiguration
     public string RedisConnectionString { get; set; } = string.Empty;
     public string ShardName { get; set; } = string.Empty;
 
+    public string MessageOfTheDay { get; set; } = string.Empty;
+
     public T GetValue<T>(string key)
     {
         var prop = GetType().GetProperty(key);

@@ -37,6 +37,7 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
     private readonly GPoseLobbyDistributionService _gPoseLobbyDistributionService;
     private readonly Uri _fileServerAddress;
     private readonly Version _expectedClientVersion;
+    private readonly IConfigurationService<ServerConfiguration> _configuration;
     private readonly Lazy<SinusDbContext> _dbContextLazy;
     private SinusDbContext DbContext => _dbContextLazy.Value;
     private readonly int _maxCharaDataByUser;
@@ -66,6 +67,7 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
         _gPoseLobbyDistributionService = gPoseLobbyDistributionService;
         _logger = new SinusHubLogger(this, logger);
         _dbContextLazy = new Lazy<SinusDbContext>(() => sinusDbContextFactory.CreateDbContext());
+        _configuration = configuration;
     }
 
     protected override void Dispose(bool disposing)
@@ -91,7 +93,12 @@ public partial class SinusHub : Hub<ISinusHub>, ISinusHub
         dbUser.LastLoggedIn = DateTime.UtcNow;
 
         await Clients.Caller.Client_ReceiveServerMessage(MessageSeverity.Information, $"Welcome to {_serverName} \"{_shardName}\", Current Online Users: {_systemInfoService.SystemInfoDto.OnlineUsers}").ConfigureAwait(false);
-
+        var messageOfTheDay = _configuration.GetValue<string>(nameof(ServerConfiguration.MessageOfTheDay));
+        if (messageOfTheDay != string.Empty)
+        {
+            await Clients.Caller.Client_ReceiveServerMessage(MessageSeverity.Warning, messageOfTheDay).ConfigureAwait(false);
+        }
+        
         var defaultPermissions = await DbContext.UserDefaultPreferredPermissions.SingleOrDefaultAsync(u => u.UserUID == UserUID).ConfigureAwait(false);
         if (defaultPermissions == null)
         {
