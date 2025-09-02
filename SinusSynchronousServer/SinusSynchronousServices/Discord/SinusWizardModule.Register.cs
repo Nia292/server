@@ -17,7 +17,7 @@ public partial class SinusWizardModule
 
         _logger.LogInformation("{method}:{userId}", nameof(ComponentRegister), Context.Interaction.User.Id);
 
-        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
 
         EmbedBuilder eb = new();
         eb.WithColor(Color.Blue);
@@ -103,7 +103,7 @@ public partial class SinusWizardModule
         bool registerSuccess = false;
 
         var isRegistrationLocked = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.LockRegistrationToRole), false);
-        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
 
         if (isRegistrationLocked)
         {
@@ -145,11 +145,11 @@ public partial class SinusWizardModule
         eb.WithTitle($"Registration successful, your UID: {uid}");
         eb.WithDescription("This is your private secret key. Do not share this private secret key with anyone. **If you lose it, it is irrevocably lost.**"
                                      + Environment.NewLine + Environment.NewLine
-                                     + "**__NOTE: Secret keys are considered legacy. Using the suggested OAuth2 authentication in Sinus, you do not need to use this Secret Key.__**"
+                                     + "**__NOTE: Secret keys are considered legacy. Using the suggested OAuth2 authentication in Moonbee, you do not need to use this Secret Key.__**"
                                      + Environment.NewLine + Environment.NewLine
                                      + $"||**`{key}`**||"
                                      + Environment.NewLine + Environment.NewLine
-                                     + "If you want to continue using legacy authentication, enter this key in Sinus Synchronous and hit save to connect to the service."
+                                     + "If you want to continue using legacy authentication, enter this key in Moonbee and hit save to connect to the service."
                                      + Environment.NewLine
                                      + "__NOTE: The Secret Key only contains the letters ABCDEF and numbers 0 - 9.__"
                                      + Environment.NewLine
@@ -203,9 +203,9 @@ public partial class SinusWizardModule
                               + Environment.NewLine + Environment.NewLine
                               + $"**`{lodestoneAuth}`**"
                               + Environment.NewLine + Environment.NewLine
-                              + $"**! THIS IS NOT THE KEY YOU HAVE TO ENTER IN SINUS !**"
+                              + $"**! THIS IS NOT THE KEY YOU HAVE TO ENTER IN MOONBEE !**"
                               + Environment.NewLine + Environment.NewLine
-                              + "Once added and saved, use the button below to Verify and finish registration and receive a secret key to use for Sinus Synchronous."
+                              + "Once added and saved, use the button below to Verify and finish registration and receive a secret key to use for Moonbee."
                               + Environment.NewLine
                               + "__You can delete the entry from your profile after verification.__"
                               + Environment.NewLine + Environment.NewLine

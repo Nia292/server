@@ -183,12 +183,12 @@ internal class DiscordBot : IHostedService
 
     private async Task GenerateOrUpdateWizardMessage(SocketTextChannel channel, IUserMessage? prevMessage)
     {
-        var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+        var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
         EmbedBuilder eb = new EmbedBuilder();
         eb.WithTitle($"{serverName} Services Bot Interaction Service");
         eb.WithDescription("Press \"Start\" to interact with this bot!" + Environment.NewLine + Environment.NewLine
             + $"You can handle all of your {serverName} account needs in this server through the easy to use interactive bot prompt. Just follow the instructions!");
-        eb.WithThumbnailUrl("https://raw.githubusercontent.com/MareSynchronos2/repo/main/SinusSynchronous/images/icon.png");
+        eb.WithThumbnailUrl("https://cdn.discordapp.com/banners/1409589211438383114/3c605f7cd6889cd1ff192c5966901651?size=512");
         var cb = new ComponentBuilder();
         cb.WithButton("Start", style: ButtonStyle.Primary, customId: "wizard-captcha:true", emote: Emoji.Parse("➡️"));
         if (prevMessage == null)
@@ -426,7 +426,7 @@ internal class DiscordBot : IHostedService
         {
             var endPoint = _connectionMultiplexer.GetEndPoints().First();
             var onlineUsers = await _connectionMultiplexer.GetServer(endPoint).KeysAsync(pattern: "UID:*").CountAsync().ConfigureAwait(false);
-            var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+            var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Moonbee");
 
             _logger.LogInformation("Users online: " + onlineUsers);
             await _discordClient.SetActivityAsync(new Game($"{serverName} for {onlineUsers} Users")).ConfigureAwait(false);

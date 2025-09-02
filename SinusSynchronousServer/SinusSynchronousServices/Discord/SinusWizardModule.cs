@@ -68,7 +68,7 @@ public partial class SinusWizardModule : InteractionModuleBase
             _ => "unknown",
         };
 
-        eb.WithTitle("Sinus Bot Services Captcha");
+        eb.WithTitle("Moonbee Bot Services Captcha");
         eb.WithDescription("You are seeing this embed because you interact with this bot for the first time since the bot has been restarted." + Environment.NewLine + Environment.NewLine
             + "This bot __requires__ embeds for its function. To proceed, please verify you have embeds enabled." + Environment.NewLine
             + $"## To verify you have embeds enabled __press on the **{nthButtonText}** button ({nthButtonEmoji}).__");
@@ -149,7 +149,7 @@ public partial class SinusWizardModule : InteractionModuleBase
             }
         }
 
-        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Sinus Synchronous");
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Moonbee");
 
         EmbedBuilder eb = new();
         eb.WithTitle($"Welcome to the {serverName} Service Bot for this server");

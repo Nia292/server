@@ -200,7 +200,7 @@ public class SinusModule : InteractionModuleBase
         if (primaryUser == null)
         {
             eb.WithTitle("No account");
-            eb.WithDescription("No Sinus account was found associated to your Discord user");
+            eb.WithDescription("No Moonbee account was found associated to your Discord user");
             return eb;
         }
 
@@ -227,7 +227,7 @@ public class SinusModule : InteractionModuleBase
             if (userInDb == null)
             {
                 eb.WithTitle("No account");
-                eb.WithDescription("The Discord user has no valid Sinus account");
+                eb.WithDescription("The Discord user has no valid Moonbee account");
                 return eb;
             }
 

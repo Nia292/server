@@ -28,9 +28,9 @@ public partial class SinusWizardModule
         eb.WithColor(Color.Blue);
         eb.WithTitle("Secondary UID");
         eb.WithDescription("You can create secondary UIDs here. " + Environment.NewLine + Environment.NewLine
-            + "Secondary UIDs act as completely separate Sinus accounts with their own pair list, joined syncshells, UID and so on." + Environment.NewLine
-            + "Use this to create UIDs if you want to use Sinus on two separate game instances at once or keep your alts private." + Environment.NewLine + Environment.NewLine
-            + "__Note:__ Creating a Secondary UID is _not_ necessary to use Sinus for alts." + Environment.NewLine + Environment.NewLine
+            + "Secondary UIDs act as completely separate Moonbee accounts with their own pair list, joined syncshells, UID and so on." + Environment.NewLine
+            + "Use this to create UIDs if you want to use Moonbee on two separate game instances at once or keep your alts private." + Environment.NewLine + Environment.NewLine
+            + "__Note:__ Creating a Secondary UID is _not_ necessary to use Moonbee for alts." + Environment.NewLine + Environment.NewLine
             + $"You currently have {secondaryUids} Secondary UIDs out of a maximum of {allowedUIDs}.");
         ComponentBuilder cb = new();
         AddHome(cb);
@@ -86,7 +86,7 @@ public partial class SinusWizardModule
 
         await db.SaveChangesAsync().ConfigureAwait(false);
 
-        embed.WithDescription("A secondary UID for you was created, use the information below and add the secret key to the Sinus setings in the Service Settings tab.");
+        embed.WithDescription("A secondary UID for you was created, use the information below and add the secret key to the Moonbee setings in the Service Settings tab.");
         embed.AddField("UID", newUser.UID);
         embed.AddField("Secret Key", computedHash);
 

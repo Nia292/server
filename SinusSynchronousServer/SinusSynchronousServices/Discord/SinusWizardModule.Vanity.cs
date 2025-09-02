@@ -119,7 +119,7 @@ public partial class SinusWizardModule
             eb.WithColor(Color.Green);
             eb.WithTitle("Vanity UID successfully set");
             eb.WithDescription($"Your Vanity UID for \"{uid}\" was successfully changed to \"{desiredVanityUid}\"." + Environment.NewLine + Environment.NewLine
-                + "For changes to take effect you need to reconnect to the Sinus service.");
+                + "For changes to take effect you need to reconnect to the Moonbee service.");
             await _botServices.LogToChannel($"{Context.User.Mention} VANITY UID SET: UID: {user.UID}, Vanity: {desiredVanityUid}").ConfigureAwait(false);
             AddHome(cb);
         }
@@ -195,7 +195,7 @@ public partial class SinusWizardModule
             eb.WithColor(Color.Green);
             eb.WithTitle("Vanity Syncshell ID successfully set");
             eb.WithDescription($"Your Vanity Syncshell ID for {gid} was successfully changed to \"{desiredVanityGid}\"." + Environment.NewLine + Environment.NewLine
-                + "For changes to take effect you need to reconnect to the Sinus service.");
+                + "For changes to take effect you need to reconnect to the Moonbee service.");
             AddHome(cb);
             await _botServices.LogToChannel($"{Context.User.Mention} VANITY GID SET: GID: {group.GID}, Vanity: {desiredVanityGid}").ConfigureAwait(false);
         }
