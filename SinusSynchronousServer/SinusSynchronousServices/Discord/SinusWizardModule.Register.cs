@@ -17,7 +17,7 @@ public partial class SinusWizardModule
 
         _logger.LogInformation("{method}:{userId}", nameof(ComponentRegister), Context.Interaction.User.Id);
 
-        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Moonbee");
 
         EmbedBuilder eb = new();
         eb.WithColor(Color.Blue);
@@ -103,7 +103,7 @@ public partial class SinusWizardModule
         bool registerSuccess = false;
 
         var isRegistrationLocked = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.LockRegistrationToRole), false);
-        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
+        var serverName = _sinusServicesConfiguration.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Moonbee");
 
         if (isRegistrationLocked)
         {

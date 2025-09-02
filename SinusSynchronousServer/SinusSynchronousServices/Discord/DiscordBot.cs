@@ -183,7 +183,7 @@ internal class DiscordBot : IHostedService
 
     private async Task GenerateOrUpdateWizardMessage(SocketTextChannel channel, IUserMessage? prevMessage)
     {
-        var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), Moonbee);
+        var serverName = _configurationService.GetValueOrDefault(nameof(ServicesConfiguration.ServerName), "Moonbee");
         EmbedBuilder eb = new EmbedBuilder();
         eb.WithTitle($"{serverName} Services Bot Interaction Service");
         eb.WithDescription("Press \"Start\" to interact with this bot!" + Environment.NewLine + Environment.NewLine
