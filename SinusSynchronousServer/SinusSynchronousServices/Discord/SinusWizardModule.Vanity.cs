@@ -93,12 +93,12 @@ public partial class SinusWizardModule
         using var db = await GetDbContext().ConfigureAwait(false);
         bool canAddVanityId = !db.Users.Any(u => u.UID == modal.DesiredVanityUID || u.Alias == modal.DesiredVanityUID);
 
-        Regex rgx = new(@"^[_\-a-zA-Z0-9]{5,15}$", RegexOptions.ECMAScript);
+        Regex rgx = new(@"^[_\-a-zA-Z0-9]{2,15}$", RegexOptions.ECMAScript);
         if (!rgx.Match(desiredVanityUid).Success)
         {
             eb.WithColor(Color.Red);
             eb.WithTitle("Invalid Vanity UID");
-            eb.WithDescription("A Vanity UID must be between 5 and 15 characters long and only contain the letters A-Z, numbers 0-9, dashes (-) and underscores (_).");
+            eb.WithDescription("A Vanity UID must be between 2 and 15 characters long and only contain the letters A-Z, numbers 0-9, dashes (-) and underscores (_).");
             cb.WithButton("Cancel", "wizard-vanity", ButtonStyle.Secondary, emote: new Emoji("❌"));
             cb.WithButton("Pick Different UID", "wizard-vanity-uid-set:" + uid, ButtonStyle.Primary, new Emoji("💅"));
         }
@@ -169,12 +169,12 @@ public partial class SinusWizardModule
         using var db = await GetDbContext().ConfigureAwait(false);
         bool canAddVanityId = !db.Groups.Any(u => u.GID == modal.DesiredVanityGID || u.Alias == modal.DesiredVanityGID);
 
-        Regex rgx = new(@"^[_\-a-zA-Z0-9]{5,20}$", RegexOptions.ECMAScript);
+        Regex rgx = new(@"^[_\-a-zA-Z0-9]{2,20}$", RegexOptions.ECMAScript);
         if (!rgx.Match(desiredVanityGid).Success)
         {
             eb.WithColor(Color.Red);
             eb.WithTitle("Invalid Vanity Syncshell ID");
-            eb.WithDescription("A Vanity Syncshell ID must be between 5 and 20 characters long and only contain the letters A-Z, numbers 0-9, dashes (-) and underscores (_).");
+            eb.WithDescription("A Vanity Syncshell ID must be between 2 and 20 characters long and only contain the letters A-Z, numbers 0-9, dashes (-) and underscores (_).");
             cb.WithButton("Cancel", "wizard-vanity", ButtonStyle.Secondary, emote: new Emoji("❌"));
             cb.WithButton("Pick Different ID", "wizard-vanity-gid-set:" + gid, ButtonStyle.Primary, new Emoji("💅"));
         }
