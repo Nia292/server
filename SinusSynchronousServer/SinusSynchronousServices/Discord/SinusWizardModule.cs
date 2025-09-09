@@ -185,7 +185,7 @@ public partial class SinusWizardModule : InteractionModuleBase
         public string Title => "Set Vanity UID";
 
         [InputLabel("Set your Vanity UID")]
-        [ModalTextInput("vanity_uid", TextInputStyle.Short, "5-15 characters, underscore, dash", 5, 15)]
+        [ModalTextInput("vanity_uid", TextInputStyle.Short, "2-15 characters, underscore, dash", 2, 15)]
         public string DesiredVanityUID { get; set; }
     }
 
@@ -194,7 +194,7 @@ public partial class SinusWizardModule : InteractionModuleBase
         public string Title => "Set Vanity Syncshell ID";
 
         [InputLabel("Set your Vanity Syncshell ID")]
-        [ModalTextInput("vanity_gid", TextInputStyle.Short, "5-20 characters, underscore, dash", 5, 20)]
+        [ModalTextInput("vanity_gid", TextInputStyle.Short, "2-20 characters, underscore, dash", 2, 20)]
         public string DesiredVanityGID { get; set; }
     }
 
